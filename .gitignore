@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+
+# Environment Variables
+.env
+.env.local
+.env.development
+.env.production
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime Data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+coverage/
+
+# Build Output
+dist/
+build/
+
+# Cache
+.cache/
+.npm/
+
+# IDE
+.vscode/
+.idea/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Temporary Files
+tmp/
+temp/
+
+# Swagger Generated Files (if generated later)
+swagger-output.json
+
+# MongoDB Local Files (if stored locally)
+data/db/
+
+# Test Reports
+reports/
