@@ -7,6 +7,19 @@ const generateToken = (userId) => {
   });
 };
 
+const toFrontendUser = (user) => {
+  const roleMapping = {
+    SUPER_ADMIN: "super-admin",
+    ADMIN: "admin",
+    USER: "student"
+  };
+
+  return {
+    ...user.toJSON(),
+    role: roleMapping[user.role] || user.role.toLowerCase()
+  };
+};
+
 const register = async (req, res, next) => {
   try {
     const { name, email, password, phone, username, role } = req.body;
@@ -36,7 +49,7 @@ const register = async (req, res, next) => {
       success: true,
       message: "User registered successfully",
       data: {
-        user,
+        user: toFrontendUser(user),
         token
       }
     });
@@ -49,8 +62,11 @@ const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    // Find user by email
-    const user = await User.findOne({ email }).select("+password");
+    // Find user by email or username.
+    const loginId = email.trim().toLowerCase();
+    const user = await User.findOne({
+      $or: [{ email: loginId }, { username: email.trim() }]
+    }).select("+password");
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -77,21 +93,11 @@ const login = async (req, res, next) => {
 
     const token = generateToken(user._id);
 
-    // Map role to frontend expected format
-    const roleMapping = {
-      "SUPER_ADMIN": "admin",
-      "ADMIN": "admin",
-      "USER": "student"
-    };
-
     res.status(200).json({
       success: true,
       message: "Login successful",
       data: {
-        user: {
-          ...user.toJSON(),
-          role: roleMapping[user.role] || user.role.toLowerCase()
-        },
+        user: toFrontendUser(user),
         token
       }
     });
@@ -104,19 +110,9 @@ const getProfile = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
 
-    // Map role to frontend expected format
-    const roleMapping = {
-      "SUPER_ADMIN": "admin",
-      "ADMIN": "admin",
-      "USER": "student"
-    };
-
     res.status(200).json({
       success: true,
-      data: {
-        ...user.toJSON(),
-        role: roleMapping[user.role] || user.role.toLowerCase()
-      }
+      data: toFrontendUser(user)
     });
   } catch (error) {
     next(error);

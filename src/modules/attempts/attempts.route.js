@@ -65,6 +65,20 @@ router.post("/:attemptId/submit", auth, validate(schemas.submitAttempt), submitA
 
 /**
  * @swagger
+ * /api/attempts/user:
+ *   get:
+ *     summary: Get current user's attempts
+ *     tags: [Attempts]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User attempts retrieved successfully
+ */
+router.get("/user", auth, getUserAttempts);
+
+/**
+ * @swagger
  * /api/attempts/{attemptId}:
  *   get:
  *     summary: Get attempt by ID
@@ -86,20 +100,6 @@ router.post("/:attemptId/submit", auth, validate(schemas.submitAttempt), submitA
  *         description: Attempt not found
  */
 router.get("/:attemptId", auth, getAttemptById);
-
-/**
- * @swagger
- * /api/attempts/user:
- *   get:
- *     summary: Get current user's attempts
- *     tags: [Attempts]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: User attempts retrieved successfully
- */
-router.get("/user", auth, getUserAttempts);
 
 /**
  * @swagger
