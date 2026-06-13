@@ -28,7 +28,7 @@ const register = async (req, res, next) => {
       password,
       phone,
       username,
-      role: "USER"
+      role: "CANDIDATE"
     });
 
     const token = generateToken(user._id);
@@ -114,9 +114,47 @@ const logout = async (req, res) => {
   });
 };
 
+const changePassword = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const user = await User.findById(req.user._id).select("+password");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    if (!user.isFirstLogin) {
+      const isPasswordValid = await user.comparePassword(currentPassword || "");
+      if (!isPasswordValid) {
+        return res.status(401).json({
+          success: false,
+          message: "Current password is incorrect"
+        });
+      }
+    }
+
+    user.password = newPassword;
+    user.isFirstLogin = false;
+    user.passwordChangedAt = new Date();
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password changed successfully",
+      data: toFrontendUser(user)
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   register,
   login,
   getProfile,
-  logout
+  logout,
+  changePassword
 };

@@ -29,10 +29,16 @@ const userSchema = new mongoose.Schema({
     unique: true,
     trim: true
   },
+  displayId: {
+    type: String,
+    unique: true,
+    sparse: true,
+    trim: true
+  },
   role: {
     type: String,
-    enum: ["SUPER_ADMIN", "ADMIN", "USER"],
-    default: "USER"
+    enum: ["SUPER_ADMIN", "ADMIN", "CANDIDATE", "USER"],
+    default: "CANDIDATE"
   },
   status: {
     type: String,
@@ -42,6 +48,22 @@ const userSchema = new mongoose.Schema({
   batch: {
     type: String,
     default: ""
+  },
+  department: {
+    type: String,
+    trim: true,
+    default: ""
+  },
+  isFirstLogin: {
+    type: Boolean,
+    default: true
+  },
+  temporaryPassword: {
+    type: String,
+    select: false
+  },
+  passwordChangedAt: {
+    type: Date
   },
   organization: {
     type: mongoose.Schema.Types.ObjectId,

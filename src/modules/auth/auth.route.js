@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { auth } = require("../../middleware/auth.middleware");
 const { validate, schemas } = require("../../middleware/validate.middleware");
-const { register, login, getProfile, logout } = require("./auth.controller");
+const { register, login, getProfile, logout, changePassword } = require("./auth.controller");
 
 /**
  * @swagger
@@ -31,7 +31,7 @@ const { register, login, getProfile, logout } = require("./auth.controller");
  *                 type: string
  *               role:
  *                 type: string
- *                 enum: [SUPER_ADMIN, ADMIN, USER]
+ *                 enum: [CANDIDATE]
  *     responses:
  *       201:
  *         description: User registered successfully
@@ -95,5 +95,6 @@ router.get("/profile", auth, getProfile);
  *         description: Logout successful
  */
 router.post("/logout", auth, logout);
+router.patch("/password", auth, validate(schemas.changePassword), changePassword);
 
 module.exports = router;

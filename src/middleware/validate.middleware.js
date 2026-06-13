@@ -34,12 +34,38 @@ const schemas = {
     password: Joi.string().min(6).required(),
     phone: Joi.string().allow('', null),
     username: Joi.string().required(),
-    role: Joi.string().valid("USER").default("USER")
+    role: Joi.string().valid("CANDIDATE").default("CANDIDATE")
   }),
 
   login: Joi.object({
     email: Joi.string().required(),
     password: Joi.string().required()
+  }),
+
+  createAdmin: Joi.object({
+    name: Joi.string().trim().min(2).required(),
+    email: Joi.string().trim().lowercase().email().required(),
+    phone: Joi.string().allow('', null),
+    department: Joi.string().allow('', null)
+  }),
+
+  bulkAdmins: Joi.object({
+    csv: Joi.string().required()
+  }),
+
+  updateUser: Joi.object({
+    name: Joi.string().trim().min(2),
+    email: Joi.string().trim().lowercase().email(),
+    phone: Joi.string().allow('', null),
+    status: Joi.string().valid("active", "inactive"),
+    batch: Joi.string().allow('', null),
+    department: Joi.string().allow('', null),
+    role: Joi.string().valid("ADMIN", "CANDIDATE")
+  }).min(1),
+
+  changePassword: Joi.object({
+    currentPassword: Joi.string().allow('', null),
+    newPassword: Joi.string().min(8).required()
   }),
 
   createQuestion: Joi.object({

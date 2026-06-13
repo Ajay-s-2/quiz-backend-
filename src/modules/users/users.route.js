@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { auth, authorize } = require("../../middleware/auth.middleware");
-const { getAllUsers, getUserById, updateUser, deleteUser, updateAverageScore } = require("./users.controller");
+const { getAllUsers, getUserById, createAdmin, bulkCreateAdmins, updateUser, updateUserStatus, resetUserPassword, exportAdmins, deleteUser, updateAverageScore } = require("./users.controller");
 
 /**
  * @swagger
@@ -29,6 +29,86 @@ const { getAllUsers, getUserById, updateUser, deleteUser, updateAverageScore } =
  *         description: Users retrieved successfully
  */
 router.get("/", auth, authorize("ADMIN", "SUPER_ADMIN"), getAllUsers);
+
+/**
+ * @swagger
+ * /api/users/create-admin:
+ *   post:
+ *     summary: Create a new admin user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               department:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Admin created successfully
+ *       409:
+ *         description: Admin with this email already exists
+ */
+router.post("/create-admin", auth, authorize("SUPER_ADMIN"), createAdmin);
+
+/**
+ * @swagger
+ * /api/users/bulk-create-admins:
+ *   post:
+ *     summary: Bulk create admin users from CSV
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               csv:
+ *                 type: string
+ *                 description: CSV content with Admin Name and Email Address
+ *     responses:
+ *       201:
+ *         description: Admins created successfully
+ *       400:
+ *         description: Invalid CSV format
+ */
+router.post("/bulk-create-admins", auth, authorize("SUPER_ADMIN"), bulkCreateAdmins);
+
+/**
+ * @swagger
+ * /api/users/export/{format}:
+ *   get:
+ *     summary: Export admin data as CSV or PDF
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: format
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [csv, pdf]
+ *     responses:
+ *       200:
+ *         description: File exported successfully
+ *       400:
+ *         description: Invalid export format
+ */
+router.get("/export/:format", auth, authorize("SUPER_ADMIN"), exportAdmins);
 
 /**
  * @swagger
@@ -90,6 +170,50 @@ router.get("/:id", auth, getUserById);
  *         description: User not found
  */
 router.put("/:id", auth, authorize("ADMIN", "SUPER_ADMIN"), updateUser);
+
+/**
+ * @swagger
+ * /api/users/{id}/status:
+ *   patch:
+ *     summary: Toggle user status (active/inactive)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User status updated successfully
+ *       404:
+ *         description: User not found
+ */
+router.patch("/:id/status", auth, authorize("SUPER_ADMIN"), updateUserStatus);
+
+/**
+ * @swagger
+ * /api/users/{id}/reset-password:
+ *   patch:
+ *     summary: Reset user password
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Password reset successfully
+ *       404:
+ *         description: User not found
+ */
+router.patch("/:id/reset-password", auth, authorize("SUPER_ADMIN"), resetUserPassword);
 
 /**
  * @swagger
