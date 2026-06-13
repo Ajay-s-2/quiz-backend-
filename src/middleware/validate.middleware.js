@@ -34,7 +34,7 @@ const schemas = {
     password: Joi.string().min(6).required(),
     phone: Joi.string().allow('', null),
     username: Joi.string().required(),
-    role: Joi.string().valid("SUPER_ADMIN", "ADMIN", "USER").default("USER")
+    role: Joi.string().valid("USER").default("USER")
   }),
 
   login: Joi.object({

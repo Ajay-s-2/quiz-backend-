@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const { User } = require("../../models");
+const { toFrontendUser } = require("../../utils/roleMapping");
 
 const generateToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET || "your-secret-key", {
@@ -7,22 +8,9 @@ const generateToken = (userId) => {
   });
 };
 
-const toFrontendUser = (user) => {
-  const roleMapping = {
-    SUPER_ADMIN: "super-admin",
-    ADMIN: "admin",
-    USER: "student"
-  };
-
-  return {
-    ...user.toJSON(),
-    role: roleMapping[user.role] || user.role.toLowerCase()
-  };
-};
-
 const register = async (req, res, next) => {
   try {
-    const { name, email, password, phone, username, role } = req.body;
+    const { name, email, password, phone, username } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
@@ -40,7 +28,7 @@ const register = async (req, res, next) => {
       password,
       phone,
       username,
-      role: role || "USER"
+      role: "USER"
     });
 
     const token = generateToken(user._id);

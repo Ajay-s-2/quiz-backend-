@@ -1,4 +1,5 @@
 const { User } = require("../../models");
+const { toFrontendUser } = require("../../utils/roleMapping");
 
 const getAllUsers = async (req, res, next) => {
   try {
@@ -17,17 +18,7 @@ const getAllUsers = async (req, res, next) => {
 
     const users = await User.find(filter).sort({ createdAt: -1 });
 
-    // Map roles to frontend expected format
-    const roleMapping = {
-      "SUPER_ADMIN": "admin",
-      "ADMIN": "admin",
-      "USER": "student"
-    };
-
-    const mappedUsers = users.map(user => ({
-      ...user.toJSON(),
-      role: roleMapping[user.role] || user.role.toLowerCase()
-    }));
+    const mappedUsers = users.map((user) => toFrontendUser(user));
 
     res.status(200).json({
       success: true,
@@ -49,18 +40,9 @@ const getUserById = async (req, res, next) => {
       });
     }
 
-    const roleMapping = {
-      "SUPER_ADMIN": "admin",
-      "ADMIN": "admin",
-      "USER": "student"
-    };
-
     res.status(200).json({
       success: true,
-      data: {
-        ...user.toJSON(),
-        role: roleMapping[user.role] || user.role.toLowerCase()
-      }
+      data: toFrontendUser(user)
     });
   } catch (error) {
     next(error);
@@ -88,18 +70,9 @@ const updateUser = async (req, res, next) => {
 
     await user.save();
 
-    const roleMapping = {
-      "SUPER_ADMIN": "admin",
-      "ADMIN": "admin",
-      "USER": "student"
-    };
-
     res.status(200).json({
       success: true,
-      data: {
-        ...user.toJSON(),
-        role: roleMapping[user.role] || user.role.toLowerCase()
-      }
+      data: toFrontendUser(user)
     });
   } catch (error) {
     next(error);
